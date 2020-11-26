@@ -8,6 +8,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
     getEmployeePayrollDataFromStorage();
   } else getEmployeePayrollDataFromServer();
 });
+
 /// UC4 -- Using the template literal feature of ES6
 const createInnerHtml = () => {
   /// If the employee payroll list is empty i.e. no data stored in the local storage then return from the method
@@ -52,6 +53,7 @@ const processEmployeePayrollDataResponse = () => {
   /// Removing data from the emp edit
   localStorage.removeItem("editEmp");
 };
+
 /// Arrow function to iterate over all the data in the local storage as json object
 /// Get item is used to fetch value in the employee payroll list using their keys
 /// JSON.parse converts the data to the employee payroll class object from the JSON string
@@ -63,6 +65,7 @@ const getEmployeePayrollDataFromStorage = () => {
   /// Calling the process Employee Payroll Data response to dynamically set the value of employee count onto the home webpage
   processEmployeePayrollDataResponse();
 };
+
 /// Get the data from the JSON server using a GET call
 const getEmployeePayrollDataFromServer = () => {
   /// Making a service call in asynchonous fashion so as to populate the employee payroll list
@@ -81,6 +84,7 @@ const getEmployeePayrollDataFromServer = () => {
       processEmployeePayrollDataResponse();
     });
 };
+
 /// Creating a JSON Object for fetching data from the server
 /// Default json file for test of the home page in early use cases
 const createEmployeePayrollJSON = () => {
@@ -107,6 +111,7 @@ const createEmployeePayrollJSON = () => {
   /// Returning the employee payroll JSON list of objects to the caller
   return empPayrollListLocal;
 };
+
 /// Method that defines the feed of multiple department to the employee payroll home page
 const getDeptHtml = (deptList) => {
   let deptHtml = "";
@@ -122,7 +127,7 @@ const remove = (node) => {
   let empPayrollData = empPayrollList.find((empData) => (empData.id = node.id));
   /// Alert pop up to check if the user accidently pressed the button or is sure to delete the employee payroll data
   var result = confirm(
-    "Want to delete the data for Employee : " + empPayrollData._name
+    "Want to delete the data for the selected Employee"
   );
   if (result) {
     /// Finding whether the element is found or not in the local storage of the employee salary list
@@ -133,10 +138,30 @@ const remove = (node) => {
       .indexOf(empPayrollData.id);
     /// Deleting the found data from the employee salary list(Not from the local storage till)
     empPayrollList.splice(index - 1, 1);
-    /// Pushing the updated data to the local storage- updation => deleting the passed node
-    localStorage.setItem("EmployeePayrollList", JSON.stringify(empPayrollList));
-    /// Count is updated on the web page so as to see the changed count
-    document.querySelector(".emp-count").textContent = empPayrollList.length;
+    if (site_properties.use_local_storage.match("true")) {
+      /// Pushing the updated data to the local storage- updation => deleting the passed node
+      localStorage.setItem(
+        "EmployeePayrollList",
+        JSON.stringify(empPayrollList)
+      );
+      /// Count is updated on the web page so as to see the changed count
+      document.querySelector(".emp-count").textContent = empPayrollList.length;
+    } else {
+      /// Specifying the delete url by appending the id to the url string
+      const deleteURL =
+        site_properties.server_url + empPayrollData.id.toString();
+      /// Creating the service call to delete the employee detail from the json database on the server side
+      makeServiceCall("DELETE", deleteURL, true)
+        .then((responseText) => {
+          /// Count is updated on the web page so as to see the changed count
+          document.querySelector(".emp-count").textContent =
+            empPayrollList.length;
+        })
+        .catch((error) => {
+          /// In case the remove try fails then log the error status on the console
+          console.log("DELETE Error Status: " + JSON.stringify(error));
+        });
+    }
   }
   /// Using the create inner html to display the tabular data on the home webpage
   createInnerHtml();

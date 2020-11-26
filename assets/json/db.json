@@ -26,19 +26,6 @@
       "_profilePic": "../assets/profile-images/Ellipse -1.png"
     },
     {
-      "_name": "Amarpal",
-      "_gender": "male",
-      "_department": [
-        "Sales",
-        "Finance"
-      ],
-      "_salary": "425200",
-      "_startDate": "29 October 2019",
-      "_note": "Testing.",
-      "_profilePic": "../assets/profile-images/Ellipse -2.png",
-      "id": 3
-    },
-    {
       "_name": "Praveen",
       "_profilePic": "../assets/profile-images/Ellipse -2.png",
       "_gender": "male",
