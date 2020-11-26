@@ -1,0 +1,50 @@
+<!-- Defining the home page to display the employee payrolldata
+And specify the CRUD operation elements on the webpage -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Employee Payroll form</title>
+    <link rel="stylesheet" href="../css/EmployeePayrollHome.css">
+</head>
+<body>
+    <!--UC1 -- Defining the header of the employee payroll webpage -->
+    <header class="header-content header">
+        <div class="logo-content">
+            <img src="../assets/images/logo.png" alt="logo image">
+            <div>
+                <span class="emp-text">EMPLOYEE</span><br>
+                <span class="emp-text emp-payroll">PAYROLL</span>
+            </div>
+        </div>
+    </header>
+    <!-- UC2 --  Defining the secondary header section -->
+    <!-- Defining the second part of the header text wherein displaying the number of added user and add user link -->
+    <div class="main-content">
+        <div class="header-content">
+            <div class="emp-detail-text">
+                Employee Details
+                <div class="emp-count">
+                    10
+                </div>
+            </div>
+            <!-- Link directing back the add user to the Employee payroll app home page -->
+            <a href="../pages/EmployeePayrollApp.html" class="add-button">
+                <img src="../assets/icons/add-24px.svg" alt="">Add User
+            </a>
+        </div>
+        <div class="table-main">
+            <table id="table-display" class="table">
+                <!--UC3 -- Creating a template to display the employee payroll data in a tabular format -->
+            </table>
+        </div>
+    </div>
+    <!-- Adding the script for the webpages depending on the requirement in the web page environment -->
+    <script src="../js/EmployeePayrollClass.js"></script>
+    <script src="../js/EmployeePayrollHome.js"></script>
+    <script src="../js/site_properties.js"></script>
+    <script src="../js/utility.js"></script>
+</body>
+</html>
