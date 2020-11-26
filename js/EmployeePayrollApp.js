@@ -78,7 +78,9 @@ const save = (event) => {
       /// Once the data is save moving to the home page to see the data directly
       /// Note that this does not mean our home button is redundant
       window.location.replace(site_properties.home_page);
-    } else {
+    }
+    /// In case we do not want to use the json server then utilising the other method to update the DB 
+    else {
       createOrUpdateEmployeePayroll();
     }
   } catch (e) {
@@ -87,9 +89,11 @@ const save = (event) => {
     return;
   }
 };
-
+/// Defining the basic POST or PUT functionality to manipulate the json database on the server
 const createOrUpdateEmployeePayroll = () => {
+  /// Defining the post url by attaching the id of the employee with the url specified in site_properties
   let postURL = site_properties.server_url;
+  /// Specify if it's a create or update call
   let methodCall = "POST";
   if (isUpdate) {
     methodCall = "PUT";
@@ -154,7 +158,7 @@ function createAndUpdateStorage() {
     employeePayrollList = [employeePayrollObj];
   }
   /// Displaying the alert popup for the user one more time before the local storage has been populated
-  alert(employeePayrollList.toString());
+  alert(toString(employeePayrollObj));
   /// Push the data to the local storage
   localStorage.setItem(
     "EmployeePayrollList",
