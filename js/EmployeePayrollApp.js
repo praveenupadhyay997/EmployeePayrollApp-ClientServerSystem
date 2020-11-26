@@ -4,37 +4,33 @@ let isUpdate = false;
 let employeePayrollObj = {};
 
 /// To be executed after loading the DOM content- Document Object Model i.e. the webpage
-/// Attaching an event handler for the load of DOM content 
+/// Attaching an event handler for the load of DOM content
 window.addEventListener("DOMContentLoaded", (event) => {
-
   const name = document.querySelector("#name");
-  const textError = document.querySelector(".name-error");
   /// Add event handler to the name field of the main page
   name.addEventListener("input", function () {
     /// If name is empty i.e. user did not entered any value no error message
     if (name.value.length == 0) {
-      textError.textContent = "";
+      setTextValue('.name-error', "");
       return;
     }
     /// Else validate the name and then print the specified error message to the screen
     /// Error message specified in the event by internally validating to the setter in EmployeePayRoll Class
     try {
-      new EmployeePayRoll().name = name.value;
-      textError.textContent = "";
+      checkName(name.value);
+      setTextValue('.name-error', "");
     } catch (e) {
-      textError.textContent = e;
+      setTextValue('.name-error', e);
     }
   });
 
   /// UC8 -- Adding the script for the salary range update when user is entering the data
   const salary = document.querySelector("#salary");
-  const output = document.querySelector(".salary-output");
-  output.textContent = salary.value;
+  setTextValue('.salary-output', salary.value);
   salary.addEventListener("input", function () {
-    output.textContent = salary.value;
+    setTextValue('.salary-output', salary.value);
   });
- /// Validation for the date property entered by the user from the console
-  dateError = document.querySelector(".date-error");
+  /// Validation for the date property entered by the user from the console
   var year = document.querySelector("#year");
   var month = document.querySelector("#month");
   var day = document.querySelector("#day");
@@ -50,12 +46,13 @@ window.addEventListener("DOMContentLoaded", (event) => {
         " " +
         getInputValueById("#year");
       dates = new Date(Date.parse(dates));
-      new EmployeePayRoll().startDate = dates;
-      dateError.textContent = "";
+      checkStartDate(new Date(Date.parse(dates)));
+      setTextValue('.date-error', "");
     } catch (e) {
-      dateError.textContent = e;
+      setTextValue('.date-error', e);
     }
   }
+  document.querySelector('.cancelButton').href = site_properties.home_page;
   /// Check for update request is passed or not by the user
   /// if request is passed then execute the request of the user by populating the data to be updated in the form
   checkForUpdate();
@@ -75,21 +72,44 @@ const save = (event) => {
      * * However it is entirely dependent on user request to either edit or add the employee payroll data
      */
     setEmployeePayrollObject();
-    createAndUpdateStorage();
-    resetForm();
-    /// Once the data is save moving to the home page to see the data directly
-    /// Note that this does not mean our home button is redundant
-    window.location.replace(site_properties.home_page);
-  }
-  catch (e) {
+    if (site_properties.use_local_storage.match("true")) {
+      createAndUpdateStorage();
+      resetForm();
+      /// Once the data is save moving to the home page to see the data directly
+      /// Note that this does not mean our home button is redundant
+      window.location.replace(site_properties.home_page);
+    } else {
+      createOrUpdateEmployeePayroll();
+    }
+  } catch (e) {
     /// Logging the error message if any
     alert(e);
     return;
   }
 };
+
+const createOrUpdateEmployeePayroll = () => {
+  let postURL = site_properties.server_url;
+  let methodCall = "POST";
+  if (isUpdate) {
+    methodCall = "PUT";
+    postURL = postURL + employeePayrollObj.id.toString();
+  }
+  makeServiceCall(methodCall, postURL, true, employeePayrollObj)
+    .then((responseText) => {
+      resetForm();
+      window.location.replace(site_properties.home_page);
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
 /// UC2 -- The code refactored from a local object based data allocation to global object data allocation
 /// Now we are not working on local instance as we had the requirement of data to be pre-declared
 const setEmployeePayrollObject = () => {
+  if (!isUpdate && site_properties.use_local_storage.match("true")) {
+    employeePayrollObj.id = createNewEmployeeId();
+  }
   employeePayrollObj._name = getInputValueById("#name");
   employeePayrollObj._profilePic = getSelectedValues("[name=profile]").pop();
   employeePayrollObj._gender = getSelectedValues("[name=gender]").pop();
@@ -113,25 +133,25 @@ function createAndUpdateStorage() {
   /// If the employeePayrollData list is not empty i.e. already created then push the incoming data onto the local storage
   if (employeePayrollList) {
     let empPayrollData = employeePayrollList.find(
-      (empData) => empData._id == employeePayrollObj._id
+      (empData) => empData.id == employeePayrollObj.id
     );
     if (!empPayrollData) {
-      employeePayrollList.push(createEmployeePayrollData());
+      employeePayrollList.push(employeePayrollObj);
     } else {
       /// Using map array helper function to mention the instance with the identified node id
       /// Getting the index of the element using index array helper function
       const index = employeePayrollList
-        .map((empData) => empData._id)
-        .indexOf(empPayrollData._id);
+        .map((empData) => empData.id)
+        .indexOf(empPayrollData.id);
       /// Removing the element from the list once update request is passed
       employeePayrollList.splice(
         index,
         1,
-        createEmployeePayrollData(empPayrollData._id)
+        employeePayrollObj
       );
     }
   } else {
-    employeePayrollList = [createEmployeePayrollData()];
+    employeePayrollList = [employeePayrollObj];
   }
   /// Displaying the alert popup for the user one more time before the local storage has been populated
   alert(employeePayrollList.toString());
@@ -141,36 +161,6 @@ function createAndUpdateStorage() {
     JSON.stringify(employeePayrollList)
   );
 }
-const createEmployeePayrollData = (id) => {
-  let employeePayrollData = new EmployeePayRoll();
-  if (!id) employeePayrollData.id = createNewEmployeeId();
-  else employeePayrollData.id = id;
-  setEmployeePayrollData(employeePayrollData);
-  return employeePayrollData;
-};
-
-const setEmployeePayrollData = (employeePayrollData) => {
-  try {
-    employeePayrollData.name = employeePayrollObj._name;
-  } catch (e) {
-    setTextValue(".name-error", e);
-    throw e;
-  }
-  employeePayrollData.profilePic = employeePayrollObj._profilePic;
-  employeePayrollData.gender = employeePayrollObj._gender;
-  employeePayrollData.department = employeePayrollObj._department;
-  employeePayrollData.salary = employeePayrollObj._salary;
-  employeePayrollData.note = employeePayrollObj._note;
-  try {
-    employeePayrollData.startDate = new Date(
-      Date.parse(employeePayrollObj._startDate)
-    );
-  } catch (e) {
-    setTextValue(".date-error", e);
-    throw e;
-  }
-  alert(employeePayrollData.toString());
-};
 
 const createNewEmployeeId = () => {
   let empID = localStorage.getItem("EmployeeID");
@@ -283,7 +273,6 @@ const setSelectedValues = (propertyValue, value) => {
       if (value.includes(item.value)) {
         item.checked = true;
       }
-    }
-    else if (item.value === value) item.checked = true;
+    } else if (item.value === value) item.checked = true;
   });
 };

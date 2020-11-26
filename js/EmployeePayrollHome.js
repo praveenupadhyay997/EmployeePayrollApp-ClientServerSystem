@@ -38,10 +38,10 @@ const createInnerHtml = () => {
           <td>${empPayrollData._salary}</td>
           <td>${stringifyDate(empPayrollData._startDate)}</td>
           <td><img id="${
-            empPayrollData._id
+            empPayrollData.id
           }" onclick= "remove(this)" alt="delete" src="../assets/icons/delete-black-18dp.svg">
             <img id="${
-              empPayrollData._id
+              empPayrollData.id
             }" onclick= "update(this)" alt="edit" src="../assets/icons/create-black-18dp.svg"></td>
     </tr>`;
   }
@@ -96,7 +96,7 @@ const getDeptHtml = (deptList) => {
 const remove = (node) => {
   /// Finding whether the data is present in the employee payroll list or not
   let empPayrollData = empPayrollList.find(
-    (empData) => (empData._id = node.id)
+    (empData) => (empData.id = node.id)
   );
   /// Alert pop up to check if the user accidently pressed the button or is sure to delete the employee payroll data
   var result = confirm("Want to delete the data for Employee : " + empPayrollData._name);
@@ -105,7 +105,7 @@ const remove = (node) => {
     if (!empPayrollData) return;
     /// Finding the index position of the employee payroll data in the employee payroll list using map and index method
     const index = empPayrollList
-      .map((empData) => empData._id)
+      .map((empData) => empData.id)
       .indexOf(empPayrollData.id);
     /// Deleting the found data from the employee salary list(Not from the local storage till)
     empPayrollList.splice(index - 1, 1);
@@ -121,7 +121,7 @@ const remove = (node) => {
 /// UC2 -- To edit detail defining the update method with parameter as the node
 const update = (node) => {
   /// Finding whether the data is present in the employee payroll list or not
-  let empPayrollData = empPayrollList.find((empData) => empData._id == node.id);
+  let empPayrollData = empPayrollList.find((empData) => empData.id == node.id);
   /// Finding whether the element is found or not in the local storage of the employee salary list
   if (!empPayrollData) return;
   /// Creating a different list for employee payroll data and storing it in the local storage
