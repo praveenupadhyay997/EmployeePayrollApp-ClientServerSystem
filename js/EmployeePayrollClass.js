@@ -1,17 +1,8 @@
 // Defining the class for the instance of data from the employee payroll webapplication
 // Defining the getters and setters for the employee payroll class for the instance memeber of the form
 class EmployeePayRoll {
-  // getter and setter method
-  get id() {
-    return this._id;
-  }
-  /// Defining the setter with the regex so as to match the input by the user
-  set id(id) {
-    let ID_REGEX = RegExp("^[1-9]{1}[0-9]*$");
-    if (ID_REGEX.test(id)) this._id = id;
-    else throw "Incorrect Id";
-    this._id = id;
-  }
+  // Refactor : Removing the getter and setter method as in client server architecture the id will be initialised by server
+  id;
 
   get name() {
     return this._name;
