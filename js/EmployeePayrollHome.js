@@ -3,16 +3,10 @@ let empPayrollList = [];
 // Adding a Document Object Model content loader with add event listener
 window.addEventListener("DOMContentLoaded", (event) => {
   /// Calling the get employee payroll data from storage method to populate the empPayrollList
-  empPayrollList = getEmployeePayrollDataFromStorage();
-  /// Selecting the emp-count class element to update the previously used static count of elements
-  var element = document.querySelector(".emp-count");
-  if (element) {
-    element.textContent = empPayrollList.length;
-  }
-  /// Calling the inner HTML method to initialise a header template and then bind it with the table
-  createInnerHtml();
-  /// Removing data from the emp edit
-  localStorage.removeItem("editEmp");
+  /// If we are expected to retrieve from the server then we are doing that on basic of flag set in use_local_storage
+  if (site_properties.use_local_storage.match("true")) {
+    getEmployeePayrollDataFromStorage();
+  } else getEmployeePayrollDataFromServer();
 });
 /// UC4 -- Using the template literal feature of ES6
 const createInnerHtml = () => {
@@ -49,13 +43,43 @@ const createInnerHtml = () => {
   /// Still the page is static and has to be made dynamic in subsequent stages
   document.querySelector("#table-display").innerHTML = innerHtml;
 };
+
+const processEmployeePayrollDataResponse = () => {
+  /// Selecting the emp-count class element to update the previously used static count of elements
+  document.querySelector(".emp-count").textContent = empPayrollList.length;
+  /// Calling the inner HTML method to initialise a header template and then bind it with the table
+  createInnerHtml();
+  /// Removing data from the emp edit
+  localStorage.removeItem("editEmp");
+};
 /// Arrow function to iterate over all the data in the local storage as json object
 /// Get item is used to fetch value in the employee payroll list using their keys
 /// JSON.parse converts the data to the employee payroll class object from the JSON string
 const getEmployeePayrollDataFromStorage = () => {
-  return localStorage.getItem("EmployeePayrollList")
+  /// Populating the global employee payroll list by using the local storage
+  empPayrollList = localStorage.getItem("EmployeePayrollList")
     ? JSON.parse(localStorage.getItem("EmployeePayrollList"))
     : [];
+  /// Calling the process Employee Payroll Data response to dynamically set the value of employee count onto the home webpage
+  processEmployeePayrollDataResponse();
+};
+/// Get the data from the JSON server using a GET call
+const getEmployeePayrollDataFromServer = () => {
+  /// Making a service call in asynchonous fashion so as to populate the employee payroll list
+  makeServiceCall("GET", site_properties.server_url, true)
+    .then((responseText) => {
+      /// Parsing the Json response from the server
+      empPayrollList = JSON.parse(responseText);
+      /// Calling the process Employee Payroll Data response to dynamically set the value of employee count onto the home webpage
+      processEmployeePayrollDataResponse();
+    })
+    .catch((error) => {
+      /// Logging the error status and response from the server
+      console.log("GET Error Status: " + JSON.stringify(error));
+      empPayrollList = [];
+      /// Calling the process Employee Payroll Data response to dynamically set the value of employee count onto the home webpage
+      processEmployeePayrollDataResponse();
+    });
 };
 /// Creating a JSON Object for fetching data from the server
 /// Default json file for test of the home page in early use cases
@@ -95,11 +119,11 @@ const getDeptHtml = (deptList) => {
 /// UC1 -- Remove the employee data from the local storage
 const remove = (node) => {
   /// Finding whether the data is present in the employee payroll list or not
-  let empPayrollData = empPayrollList.find(
-    (empData) => (empData.id = node.id)
-  );
+  let empPayrollData = empPayrollList.find((empData) => (empData.id = node.id));
   /// Alert pop up to check if the user accidently pressed the button or is sure to delete the employee payroll data
-  var result = confirm("Want to delete the data for Employee : " + empPayrollData._name);
+  var result = confirm(
+    "Want to delete the data for Employee : " + empPayrollData._name
+  );
   if (result) {
     /// Finding whether the element is found or not in the local storage of the employee salary list
     if (!empPayrollData) return;

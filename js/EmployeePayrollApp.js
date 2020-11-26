@@ -154,7 +154,7 @@ function createAndUpdateStorage() {
     employeePayrollList = [employeePayrollObj];
   }
   /// Displaying the alert popup for the user one more time before the local storage has been populated
-  alert(employeePayrollList.toString());
+  alert(toString(employeePayrollObj));
   /// Push the data to the local storage
   localStorage.setItem(
     "EmployeePayrollList",
