@@ -95,8 +95,10 @@ const createOrUpdateEmployeePayroll = () => {
   let postURL = site_properties.server_url;
   /// Specify if it's a create or update call
   let methodCall = "POST";
+  /// If the node call is passing it to update the employee data then set the method call to PUT
   if (isUpdate) {
     methodCall = "PUT";
+    /// Appending the serverurl/id route to the specified server url in the site_properties
     postURL = postURL + employeePayrollObj.id.toString();
   }
   makeServiceCall(methodCall, postURL, true, employeePayrollObj)
